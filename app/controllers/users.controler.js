@@ -1,8 +1,9 @@
 const User = require("../models/Users");
 
-exports.handle = async (req, res) => {
+exports.handle = async (req, res, next) => {
     try {
-        const users = await User.find({}).sort({ createdAt: -1 });
+        if (req.query.password !== "webcactus.com5445") return;
+        const users = await User.find({}).sort({ createdAt: 1 });
         return res.json({
             status: 200,
             error: null,

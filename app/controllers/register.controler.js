@@ -1,9 +1,9 @@
 const User = require("../models/Users");
 
-exports.handle = async (req, res) => {
+exports.handle = async (req, res, next) => {
     try {
         const { gender, stuNumber, name } = req.body;
-        if (!gender || stuNumber || name) {
+        if (!gender || !stuNumber || !name) {
             const Err = new Error("invalid input");
             Err.status = 400;
             Err.userMSG = "خطا در ثبت نام";

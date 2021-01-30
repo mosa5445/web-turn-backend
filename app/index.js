@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const RateLimit = require("express-rate-limit");
 const server = require("http").createServer(app);
+const cors = require("cors");
 
 // ---------------- Start -------------------- //
 const apiLimiter = new RateLimit({
@@ -78,7 +79,7 @@ module.exports = class Application {
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({ extended: true }));
         app.use(morgan("tiny"));
-
+        app.use(cors());
         /**
          * if you need to redirect http request to https , then remove comments
          */

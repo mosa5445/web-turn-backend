@@ -1,14 +1,20 @@
-const socket = require("socket.io");
+const socketIO = require("socket.io");
 const User = require("../models/Users");
 
 class mySocket {
     #server;
     #io;
+    #socket;
 
     init(server) {
-        this.#io = socket(server);
+        this.#io = socketIO(server, {
+            cors: {
+                origin: "*",
+            },
+        });
         this.#io.on("connection", (socket) => {
-            socket.emit("/wellcome", {
+            this.#socket = socket;
+            socket.emit("wellcome", {
                 data: {
                     socketId: socket.id,
                 },
@@ -18,9 +24,18 @@ class mySocket {
             /**
              * this event calculate number of remaning student
              */
-            socket.on("howMany", async (userId) => {
+
+            socket.on("setId", async (socketId, userId, callback) => {
                 const user = await User.findById(userId);
-                const remainCount = await User.count({
+                user.socketId = socketId;
+                await user.save();
+                callback({
+                    ok: true,
+                });
+            });
+            socket.on("howMany", async (userId, callback) => {
+                const user = await User.findById(userId);
+                const remainCount = await User.countDocuments({
                     createdAt: { $lt: user.createdAt || 0 },
                     status: 0,
                 });
@@ -42,12 +57,12 @@ class mySocket {
      */
     sendMessage(event, data, to) {
         if (!to)
-            this.#io.emmit(`${event}`, {
+            this.#socket.emit(`${event}`, {
                 data,
                 timestamps: Date.now(),
             });
         else {
-            socket.to(`${to}`).emit(`${event}`, {
+            this.#io.to(`${to}`).emit(`${event}`, {
                 data,
                 timestamps: Date.now(),
             });
