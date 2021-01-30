@@ -1,22 +1,22 @@
-const router = require('express').Router()
+const router = require("express").Router();
 
-
-/** 
+/**
  * middlewares
  */
 // ------------------------------------ //
 /*            No MiddleWare            */
 // ------------------------------------ //
 
-
-/** 
- * admin routes
-*/
+/**
+ *  routes
+ */
 // ------------------------------------ //
-const public = require('./public')
-router.use('/', public)
-// ------------------------------------ //
+const public = require("./public");
+router.use("/", public);
 
+const private = require("./private");
+router.use("/admin", private);
+// ------------------------------------ //
 
 /**
  * error handler
@@ -24,29 +24,27 @@ router.use('/', public)
 // ---------------- Start -------------------- //
 router.use((req, res) => {
     return res.status(404).json({
-        status: 'NotFound',
-        devMSG: 'NotFound',
-        userMSG: 'یافت نشد'
-    })
-})
+        status: "NotFound",
+        devMSG: "NotFound",
+        userMSG: "یافت نشد",
+    });
+});
 
 router.use((err, req, res, next) => {
     if (err.name === "MulterError") {
         return res.status(415).json({
             status: 400,
             devMSG: err.message,
-            userMSG: "حجم فایل باید کم تر از 50 مگابایت باشد"
-        })
-    }
-    else {
+            userMSG: "حجم فایل باید کم تر از 50 مگابایت باشد",
+        });
+    } else {
         return res.status(err.status || 400).json({
             status: err.status,
             devMSG: err.message,
-            userMSG: err.userMSG
-        })
+            userMSG: err.userMSG,
+        });
     }
-})
+});
 // ----------------- END --------------------- //
 
-
-module.exports = router
+module.exports = router;

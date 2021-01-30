@@ -4,8 +4,8 @@ const router = require("express").Router();
  * controllers
  */
 // ------------------------------------ //
-const registerControler = require("../controllers/register.controler");
-const loginControler = require("../controllers/login.controller");
+const sendNotifToUser = require("../controllers/notif.controler");
+const getUsersList = require("../controllers/users.controler");
 // ------------------------------------ //
 
 /**
@@ -15,7 +15,7 @@ const loginControler = require("../controllers/login.controller");
 /*            No MiddleWare            */
 // ------------------------------------ //
 
-router.post("/register", registerControler.handle);
-router.post("/login", loginControler.handle);
+router.post("/notif", sendNotifToUser.handle);
+router.get("/users", getUsersList.handle);
 
 module.exports = router;

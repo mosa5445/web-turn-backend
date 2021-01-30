@@ -1,38 +1,35 @@
-const app = require('express')();
-const helmet = require('helmet');
-const morgan = require('morgan')
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const RateLimit = require('express-rate-limit');
-const server = require('http').createServer(app);
-// const io = require('socket.io')(server); install required
-
-
+const express = require("express");
+const app = express();
+const helmet = require("helmet");
+const morgan = require("morgan");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const RateLimit = require("express-rate-limit");
+const server = require("http").createServer(app);
 
 // ---------------- Start -------------------- //
 const apiLimiter = new RateLimit({
-    windowMs: 1000 * 30,
+    windowMs: 1000 * 10,
     max: 10,
     handler: function (req, res) {
         res.json({
             status: 429,
-            devMSG: 'Too Many Request',
-            userMSG: "تعداد زیادی درخواست از سمت شما ارسال شده لطفا چند دقیقه دیگه دوباره امتحان کنید"
-        })
-    }
+            devMSG: "Too Many Request",
+            userMSG:
+                "تعداد زیادی درخواست از سمت شما ارسال شده لطفا چند دقیقه دیگه دوباره امتحان کنید",
+        });
+    },
 });
 // ----------------- END --------------------- //
-
 
 // -------------- Start Of Main Classs------------------ //
 module.exports = class Application {
     constructor() {
-
         this.setupExpress();
         this.setMongoConnection();
         this.setConfig();
         this.setRouters();
-        // this.socketIO();
+        this.socketIO();
     }
 
     // ---------------- Start -------------------- //
@@ -40,10 +37,9 @@ module.exports = class Application {
         // const server = http.createServer(app);
         server.listen(process.env.PORT || 4000, (err) => {
             if (err) {
-                console.error('Server   =>  Error \n\n' + err)
-            }
-            else {
-                console.info('Server   => Ready')
+                console.error("Server   =>  Error \n\n" + err);
+            } else {
+                console.info("Server   => Ready");
             }
         });
     }
@@ -52,33 +48,36 @@ module.exports = class Application {
     // ---------------- Start -------------------- //
     setMongoConnection() {
         mongoose.Promise = global.Promise;
-        mongoose.connect(process.env.DB_URL, {
-            useNewUrlParser: true,
-            useCreateIndex: true,
-            useFindAndModify: false
-        }, (err) => {
-            if (err) {
-                console.error('DataBase => Error \n\n' + err)
-            }
-            else {
-                console.info('DataBase => Ready')
-            }
-        });
+        mongoose.connect(
+            process.env.DB_URL,
+            {
+                useNewUrlParser: true,
+                useCreateIndex: true,
+                useFindAndModify: false,
+                useUnifiedTopology: true,
+            },
+            (err) => {
+                if (err) {
+                    console.error("DataBase => Error \n\n" + err);
+                } else {
+                    console.info("DataBase => Ready");
+                }
+            },
+        );
     }
     // ----------------- END --------------------- //
-
 
     /**
      * Express Config
      */
     // ---------------- Start -------------------- //
     setConfig() {
-        app.enable('trust proxy');
+        app.enable("trust proxy");
         app.use(helmet());
-        app.use(express.static('public'));
+        app.use(express.static("public"));
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({ extended: true }));
-        app.use(morgan('tiny'))
+        app.use(morgan("tiny"));
 
         /**
          * if you need to redirect http request to https , then remove comments
@@ -91,21 +90,19 @@ module.exports = class Application {
         //         res.redirect('https://' + req.headers.host + req.url)
         //     }
         // })
-
-
     }
     // ----------------- END --------------------- //
-
 
     // ---------------- Start -------------------- //
     setRouters() {
-        app.use(apiLimiter, require('./routes'));
+        app.use(apiLimiter, require("./routes"));
     }
     // ----------------- END --------------------- //
 
-    // socketIO(){
-
-    // }
-}
+    socketIO() {
+        const socketHandler = require("./socket/index");
+        socketHandler.init(server);
+    }
+};
 
 // -------------- End Of Main Classs------------------ //
