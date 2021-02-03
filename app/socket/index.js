@@ -48,18 +48,18 @@ class mySocket {
             });
         });
     }
-    
-    sendStatistics() {
+
+    async sendStatistics() {
         const user = await User.findById(userId);
         const remainCount = await User.countDocuments({
             createdAt: { $lt: user.createdAt || 0 },
             status: 0,
         });
 
-        this.#socket.emit('update', {
+        this.#socket.emit("update", {
             data: remainCount,
             timestamps: Date.now(),
-        });       
+        });
     }
 
     /**
